@@ -1,0 +1,43 @@
+version: "3"
+services:
+
+
+  #MySQL Database image
+  my_database:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: wp_docker
+      MYSQL_USER: johny
+      MYSQL_PASSWORD: 123
+    volumes:
+      - mysql:/var/lib/mysql
+  phpmyadmin:
+    depends_on:
+      - my_database
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - '8080:80'
+    environment:
+      PMA_HOST: my_database
+      MYSQL_ROOT_PASSWORD: 1234
+
+  #WordPress image based on Apache
+  wordpress:
+    depends_on:
+      - my_database
+    image: wordpress:latest
+    restart: always
+    ports:
+      - "8000:80"
+    environment:
+      WORDPRESS_DB_HOST: my_database:3306
+      WORDPRESS_DB_USER: johny
+      WORDPRESS_DB_PASSWORD: 123
+      WORDPRESS_DB_NAME: wp_docker
+    volumes:
+      ["./:/var/www/html"]
+volumes:
+  mysql: {}
